@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mahjong-kiroku",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["../Claudeの使い道/tools/quiet-serve.js", "app", "8765"],
+      "port": 8765
+    }
+  ]
+}

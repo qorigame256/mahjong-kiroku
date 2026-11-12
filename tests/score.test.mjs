@@ -1,4 +1,4 @@
-// 走らせ方: node --test tests/
+// 走らせ方: node --test tests/score.test.mjs tests/fu.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DEFAULT_RULES, basePoints, ronValue, tsumoPays, replay, settle, kyokuName } from '../app/js/score.js';

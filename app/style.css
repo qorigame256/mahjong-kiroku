@@ -113,9 +113,75 @@ select:disabled { opacity: .4; }
 .stats div { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding: 5px 0; font-size: 14px; }
 .stats dt { color: var(--sub); } .stats dd { margin: 0; font-variant-numeric: tabular-nums; }
 
+/* 符計算 */
+.lead { margin: 0 0 6px; font-size: 14px; }
+.lead b, .tips b { color: var(--gold); font-weight: 700; }
+.futable { width: 100%; border-collapse: separate; border-spacing: 3px; font-variant-numeric: tabular-nums; table-layout: fixed; }
+.futable thead th { font-size: 11px; color: var(--sub); font-weight: 400; padding: 2px 0 4px; }
+.futable thead th b { display: block; font-family: var(--mincho); font-size: 14px; color: var(--text); font-weight: 700; }
+.futable th.ex { width: 22%; font-size: 13px; color: var(--gold); font-family: var(--mincho); font-weight: 700; background: #0c2217; border-radius: 8px; white-space: nowrap; }
+.futable thead th.ex { color: var(--sub); font-weight: 400; background: none; }
+.futable td { text-align: center; border-radius: 8px; padding: 5px 2px 4px; color: #fbf6e6; }
+.futable .v { display: block; font-family: var(--mincho); font-size: 21px; font-weight: 700; line-height: 1.15; }
+.futable .v sup { font-size: 11px; font-weight: 400; }
+.futable .raw { display: block; font-size: 11px; opacity: .7; }
+.futable td.mark { outline: 3px solid var(--gold); outline-offset: -1px; box-shadow: 0 0 14px #d9b65a99; }
+/* 符の段ごとの色（緑→黄土→赤茶と、段が上がるほど暖かい色） */
+.b30 { background: #1f5038; } .b40 { background: #4d6125; } .b50 { background: #7a5a1e; } .b60 { background: #84392a; }
+.b70 { background: #7e2c45; } .b80 { background: #682c5c; } .b90 { background: #4f2f6b; } .b100 { background: #3b3470; }
+.parts { width: 100%; border-collapse: separate; border-spacing: 3px; text-align: center; font-variant-numeric: tabular-nums; }
+.parts th { font-size: 13px; color: var(--sub); font-weight: 400; }
+.parts tr th:first-child { text-align: left; color: var(--text); font-family: var(--mincho); font-weight: 700; font-size: 14px; }
+.parts th small { display: block; font-family: system-ui, sans-serif; font-weight: 400; font-size: 11px; color: var(--sub); }
+.parts td { background: #0c2217; border-radius: 8px; padding: 6px 0; font-family: var(--mincho); font-size: 20px; font-weight: 700; color: var(--gold); }
+.memo { text-align: center; font-size: 13px; color: #f3e3ad; margin: 6px 0 10px; }
+.partlist { margin: 0; }
+.partlist div { display: flex; gap: 10px; border-top: 1px solid var(--line); padding: 7px 0; font-size: 14px; }
+.partlist dt { flex: none; width: 3em; color: var(--gold); font-family: var(--mincho); font-weight: 700; }
+.partlist dd { margin: 0; }
+.tips { margin: 0; padding-left: 1.2em; font-size: 14px; }
+.tips li { margin: 6px 0; }
+.tips li::marker { color: var(--gold); }
+
+.gh .score { margin-left: auto; font-size: 13px; color: var(--sub); font-variant-numeric: tabular-nums; }
+.gh h2 { margin: 0; }
+.qhead { display: flex; align-items: center; gap: 12px; margin: 4px 0 10px; font-size: 14px; }
+.qhead b { color: var(--gold); }
+.badge { background: var(--gold); color: #24190a; font-weight: 700; border-radius: 999px; padding: 3px 12px; font-size: 14px; }
+.hand { background: radial-gradient(ellipse at center, #23694a 0%, #17472f 80%); border-radius: 14px; padding: 8px 10px; box-shadow: inset 0 0 18px #0007; }
+.set { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.set + .set { border-top: 1px solid #ffffff14; }
+.set.open .setname { color: #f3e3ad; }
+.tiles { display: flex; flex-wrap: wrap; gap: 3px; }
+.setname { font-size: 13px; color: #d7e5d3; }
+.tile { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 28px; height: 38px; border-radius: 5px; line-height: 1;
+  background: linear-gradient(180deg, #fffaf0, #ece2c6); box-shadow: 0 2px 0 #b9ad8c, 0 3px 5px #0006; color: #1b2a3a; font-family: var(--mincho); }
+.tile b { font-size: 15px; font-weight: 700; }
+.tile i { font-style: normal; font-size: 10px; margin-top: 2px; }
+.tile.m i { color: #b8352a; } .tile.p i { color: #1f5f9c; } .tile.s i { color: #2e7d4a; }
+.tile.z b { font-size: 19px; }
+.tile.z5 b { color: #8a97a4; } .tile.z6 b { color: #2e7d4a; } .tile.z7 b { color: #c0392b; }
+.tile.win { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--gold), 0 2px 0 #b9ad8c, 0 0 12px #d9b65acc; }
+.fuans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 4px; }
+.fuans .btn { padding: 8px 0; font-family: var(--mincho); font-size: 18px; font-weight: 700; }
+.fuans .btn.right { background: var(--gold); color: #24190a; border-color: var(--gold); }
+.fuans .btn.wrong { background: transparent; color: var(--red); border-color: var(--red); }
+.fuans .btn.dim { opacity: .35; }
+.verdict { margin: 14px 0 8px; padding: 10px; border-radius: 10px; text-align: center; font-family: var(--mincho); font-size: 19px; font-weight: 700; }
+.verdict.ok { background: #3a3216; border: 1px solid var(--gold); color: var(--gold); }
+.verdict.ng { background: #3a1d19; border: 1px solid var(--red); color: #f2b0a6; }
+.breakdown { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.breakdown td { padding: 6px 2px; border-top: 1px solid var(--line); vertical-align: top; }
+.breakdown td small { display: block; font-size: 12px; color: var(--sub); }
+.breakdown .n { text-align: right; width: 3em; font-family: var(--mincho); font-weight: 700; font-size: 16px; }
+.sum { margin: 8px 0 4px; padding: 8px 10px; background: #0c2217; border-radius: 10px; font-size: 15px; }
+.sum b { color: var(--gold); font-family: var(--mincho); font-size: 18px; }
+.linkbtn { appearance: none; background: none; border: 0; color: var(--gold); font-family: inherit; font-size: 14px; text-decoration: underline; padding: 6px 0; cursor: pointer; }
+.peek { background: #0c2217; border: 1px solid var(--line); border-radius: 12px; padding: 6px; margin-bottom: 6px; }
+
 /* 下のタブ */
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: #08170fee; border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); backdrop-filter: blur(6px); }
-.tabs button { flex: 1; appearance: none; border: 0; background: transparent; color: var(--sub); font-family: var(--mincho); font-size: 16px; padding: 16px 0; cursor: pointer; letter-spacing: .15em; }
+.tabs button { flex: 1; appearance: none; border: 0; background: transparent; color: var(--sub); font-family: var(--mincho); font-size: 16px; padding: 16px 0; cursor: pointer; letter-spacing: .08em; white-space: nowrap; }
 .tabs button.on { color: var(--gold); box-shadow: inset 0 2px 0 var(--gold); }
 
 dialog { background: var(--panel); color: var(--text); border: 1px solid var(--gold); border-radius: 16px; padding: 16px; width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); }

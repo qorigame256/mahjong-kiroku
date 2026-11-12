@@ -1,4 +1,6 @@
 import { WINDS, DEFAULT_RULES, HAN_OPTIONS, FU_OPTIONS, replay, settle, kyokuName } from './score.js';
+import { calcFu, makeQuestion } from './fu.js';
+import { sheetHtml, quizHtml, fuTemplate, partsSheet } from './fuview.js';
 
 const KEY = 'mahjong-kiroku-v1';
 const $ = (s) => document.querySelector(s);
@@ -28,7 +30,8 @@ function save() {
 }
 
 let db = load();
-const ui = { tab: 'game', armed: null, statMode: 4, open: null, f: null, msg: '', saveError: false };
+const ui = { tab: 'game', armed: null, statMode: 4, open: null, f: null, msg: '', saveError: false,
+  fuView: 'sheet', fuq: null, fuAns: null, fuScore: { ok: 0, total: 0 } }; // 符計算タブの練習は保存しない
 let draft = newDraft(4);
 
 function newDraft(mode) {
@@ -180,14 +183,18 @@ function renderDlg() {
     return i === skip ? '' : `<button class="chip ${on ? 'on' : ''}" data-act="pick" data-key="${key}" data-i="${i}">${h(nm)}</button>`;
   }).join('')}</div>`;
   const title = { ron: 'ロン', tsumo: 'ツモ', draw: '流局', adjust: '点数を直す' }[f.type];
+  // 符に迷ったとき、入力を消さずにその場で早見表を開く
+  const peek = `<button class="linkbtn" data-act="fuPeek">${f.showFu ? '符の早見表をとじる' : '符の早見表を見る'}</button>
+    ${f.showFu ? `<div class="peek">${fuTemplate()}${partsSheet()}</div>` : ''}`;
   let body = '';
   if (f.type === 'ron') {
     body = `<label class="lbl">振り込んだ人</label>${chips('loser')}
       <label class="lbl">あがった人（2人以上も選べます）</label>${chips('winners', f.loser)}
-      ${f.winners.map((w) => `<div class="row"><span class="handname">${h(names[w])}</span>${handSelect(f.hands[w], `data-i="${w}"`)}</div>`).join('')}`;
+      ${f.winners.map((w) => `<div class="row"><span class="handname">${h(names[w])}</span>${handSelect(f.hands[w], `data-i="${w}"`)}</div>`).join('')}
+      ${peek}`;
   } else if (f.type === 'tsumo') {
     body = `<label class="lbl">あがった人</label>${chips('winner')}
-      <div class="row">${handSelect(f, '')}</div>`;
+      <div class="row">${handSelect(f, '')}</div>${peek}`;
   } else if (f.type === 'draw') {
     body = `<label class="check"><input type="checkbox" data-chg="abort" ${f.abort ? 'checked' : ''}> 途中流局（九種九牌など。点数は動かず親はそのまま）</label>
       ${f.abort ? '' : `<label class="lbl">聴牌（テンパイ）していた人</label>${chips('tenpai')}`}`;
@@ -345,12 +352,18 @@ function renderSettings() {
     </section>`;
 }
 
+// ---------- 符計算タブ ----------
+function renderFu() {
+  return seg('fuView', ui.fuView, [['sheet', '早見表'], ['quiz', '練習']])
+    + (ui.fuView === 'quiz' ? quizHtml(ui.fuq, ui.fuAns, ui.fuScore) : sheetHtml());
+}
+
 // ---------- 描画 ----------
 function render() {
   const a = active();
-  const views = { game: () => (a ? renderTable(a) : renderNew()), history: renderHistory, stats: renderStats, settings: renderSettings };
+  const views = { game: () => (a ? renderTable(a) : renderNew()), history: renderHistory, stats: renderStats, fu: renderFu, settings: renderSettings };
   $('#main').innerHTML = (ui.saveError ? '<p class="err">保存に失敗しました。ブラウザの空き容量や「プライベート」モードを確かめてください</p>' : '') + views[ui.tab]();
-  $('#tabs').innerHTML = [['game', '対局'], ['history', '履歴'], ['stats', '戦績'], ['settings', '設定']]
+  $('#tabs').innerHTML = [['game', '対局'], ['history', '履歴'], ['stats', '戦績'], ['fu', '符計算'], ['settings', '設定']]
     .map(([k, l]) => `<button class="${ui.tab === k ? 'on' : ''}" data-act="tab" data-v="${k}">${l}</button>`).join('');
   if (ui.f) renderDlg();
 }
@@ -431,6 +444,19 @@ const actions = {
   },
   doImport() { db = ui.pending; ui.pending = null; draft = newDraft(4); save(); },
   cancelImport() { ui.pending = null; },
+  fuView(d) { ui.fuView = d.v; if (d.v === 'quiz' && !ui.fuq) actions.fuNext(); },
+  fuAnswer(d) {
+    if (ui.fuAns != null) return; // 答えたあとは押し直せない
+    ui.fuAns = Number(d.v);
+    ui.fuScore.total++;
+    if (ui.fuAns === calcFu(ui.fuq).fu) ui.fuScore.ok++;
+  },
+  fuNext() {
+    ui.fuq = makeQuestion();
+    ui.fuAns = null;
+    queueMicrotask(() => window.scrollTo(0, 0)); // 描き直したあとで、次の問題が見える位置へ戻す
+  },
+  fuPeek() { ui.f.showFu = !ui.f.showFu; },
 };
 
 document.addEventListener('click', (ev) => {

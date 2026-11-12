@@ -1,7 +1,7 @@
 // 走らせ方: node --test tests/fu.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FORMS, ROWS, rowsUpTo, fuFromExtra, setFu, calcFu, formOf, isMenzen, isTricky, makeQuestion } from '../app/js/fu.js';
+import { FORMS, ROWS, rowsUpTo, fuFromExtra, setFu, calcFu, formOf, isMenzen, isTricky, makeQuestion, readingFus } from '../app/js/fu.js';
 import { FU_OPTIONS } from '../app/js/score.js';
 
 // 種を決めた乱数（同じ順で同じ問題が出る）
@@ -76,6 +76,18 @@ test('符の計算: 代表的な手', () => {
   assert.equal(calcFu({ win: 'ron', chiitoi: ['m1', 'm3', 'p5', 'p7', 's2', 'z1', 'z7'], sets: [] }).fu, 25, '七対子');
 });
 
+test('読み直し: 待ちが2通りに取れる手は符が2つ出る', () => {
+  // 白白白・123萬・345萬・456筒・中中 を 3萬でロン。345萬の両面なら40符、123萬の辺張なら50符
+  const q = hand('ron', [kou('z5'), shun('m', 1), shun('m', 3), shun('p', 4)], 'z7', 'ryanmen', 2, 0);
+  assert.equal(calcFu(q).fu, 40);
+  assert.deepEqual([...readingFus(q)].sort(), [40, 50]);
+  // 重なりの無い手は1つだけ
+  assert.deepEqual([...readingFus(hand('ron', [kou('z5'), shun('m', 1), shun('p', 3), shun('s', 4)], 'z7', 'ryanmen', 2, 0))], [40]);
+  // 112233萬・445566筒・77索 は七対子（25符）にも読める
+  const p = hand('ron', [shun('m', 1), shun('m', 1), shun('p', 4), shun('p', 4)], 's7', 'tanki', -1, 1);
+  assert.ok(readingFus(p).has(25) && readingFus(p).size > 1);
+});
+
 test('練習問題: 形が正しく、答えが早見表と一致する', () => {
   const rand = seeded(20261112);
   const seen = new Set();
@@ -120,6 +132,8 @@ test('練習問題: 形が正しく、答えが早見表と一致する', () => 
     }
     // 早見表で読んだ符と、1つずつ数えた符が同じ（平和ツモだけは表の注で示す）
     if (!r.special) assert.equal(r.fu, fuFromExtra(formOf(q), r.extra), JSON.stringify(q));
+    // 別の組み方・別の待ちで読み直しても符が変わらない（正解が1つに決まる）
+    assert.deepEqual([...readingFus(q)], [r.fu], `読み方で符が変わる手 ${JSON.stringify(q)}`);
   }
   for (const k of ['menzenRon門前', 'tsumo門前', 'nakiRon鳴き', 'tsumo鳴き', '七対子', 'ryanmen', 'kanchan', 'penchan', 'tanki', 'shanpon']) {
     assert.ok(seen.has(k), `${k} の問題が出る`);

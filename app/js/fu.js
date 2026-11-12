@@ -161,7 +161,52 @@ function draftHand(rand) {
       if (used.has(t) || count[t] > 4) return null;
     }
   }
-  return { win, sets, pair, wait, winSet, winIdx };
+  const hand = { win, sets, pair, wait, winSet, winIdx };
+  // 順子どうしが重なると、別の待ちにも読める（例: 123萬・345萬 の3萬は両面とも辺張とも読める）。符が1つに決まらない手は使わない
+  return readingFus(hand).size === 1 ? hand : null;
+}
+
+// 手の中の牌（鳴いた面子と暗槓は宣言済みなので除く）を、面子の組み方と和了牌の入り方を変えて読み直し、
+// 読み方ごとの符をすべて返す（七対子にも読めるならその25符も入れる）。
+// 2つ以上の値が返る手は、どの待ちで数えるかで符が変わる＝「高いほうで数える」が要る手なので出題しない
+export function readingFus(hand) {
+  if (hand.chiitoi) return new Set([25]);
+  const fixed = hand.sets.filter((s) => s.open || s.kind === 'kan');
+  const tiles = [...hand.sets.filter((s) => !s.open && s.kind !== 'kan').flatMap((s) => s.tiles), hand.pair, hand.pair];
+  const winTile = hand.winSet === -1 ? hand.pair : hand.sets[hand.winSet].tiles[hand.winIdx];
+  const count = {};
+  for (const t of tiles) count[t] = (count[t] || 0) + 1;
+  const keys = Object.keys(count).sort();
+  const fus = new Set();
+  if (isMenzen(hand) && !fixed.length && keys.length === 7 && keys.every((t) => count[t] === 2)) fus.add(25);
+  const next = (t, d) => (t[0] === 'z' ? null : t[0] + (tileNum(t) + d));
+  // groups: 面子の並び、pair: 雀頭（まだ無ければ null）
+  const walk = (groups, pair) => {
+    const t = keys.find((k) => count[k] > 0);
+    if (!t) { if (pair) judge(groups, pair); return; }
+    if (!pair && count[t] >= 2) { count[t] -= 2; walk(groups, t); count[t] += 2; }
+    if (count[t] >= 3) { count[t] -= 3; walk([...groups, { kind: 'kou', open: false, tiles: [t, t, t] }], pair); count[t] += 3; }
+    const t1 = next(t, 1), t2 = next(t, 2);
+    if (t1 && tileNum(t) <= 7 && count[t1] > 0 && count[t2] > 0) {
+      count[t]--; count[t1]--; count[t2]--;
+      walk([...groups, { kind: 'shun', open: false, tiles: [t, t1, t2] }], pair);
+      count[t]++; count[t1]++; count[t2]++;
+    }
+  };
+  const judge = (groups, pair) => {
+    const sets = [...groups, ...fixed];
+    if (pair === winTile) fus.add(calcFu({ win: hand.win, sets, pair, wait: 'tanki', winSet: -1, winIdx: 0 }).fu);
+    groups.forEach((g, i) => {
+      const idx = g.tiles.indexOf(winTile);
+      if (idx < 0) return;
+      const start = tileNum(g.tiles[0]);
+      const wait = g.kind === 'kou' ? 'shanpon' : idx === 1 ? 'kanchan'
+        : (idx === 0 && start === 7) || (idx === 2 && start === 1) ? 'penchan' : 'ryanmen';
+      fus.add(calcFu({ win: hand.win, sets, pair, wait, winSet: i, winIdx: idx }).fu);
+    });
+  };
+  walk([], null);
+  return fus;
 }
 
 // 符はねの境目（合計の一の位が 0・2・8）。早見表の外の決まりと、足し符0（平和形・鳴きロンの30符）は境目に数えない

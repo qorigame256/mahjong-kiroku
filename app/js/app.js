@@ -20,6 +20,33 @@ function load() {
   } catch { /* 壊れていたら空から始める */ }
   return emptyDb();
 }
+// 読み込んだ控えが、このアプリの画面と replay() が落ちずに扱える形かを確かめる（置き換える前に使う）
+function validDb(d) {
+  const isNum = (x) => typeof x === 'number' && Number.isFinite(x);
+  const isSeat = (n) => (x) => Number.isInteger(x) && x >= 0 && x < n;
+  const nums = (a, n) => Array.isArray(a) && a.length === n && a.every(isNum);
+  const ruleOk = (r, n) => r && ['start', 'ret', 'honba', 'tenpai'].every((k) => isNum(r[k])) && nums(r.uma, n) && typeof r.tsumoLoss === 'boolean';
+  const handOk = (x) => HAN_OPTIONS.some(([v]) => v === x.han) && FU_OPTIONS.includes(x.fu);
+  const roundOk = (r, n) => {
+    if (!r || (r.riichi != null && !(Array.isArray(r.riichi) && r.riichi.every(isSeat(n))))) return false;
+    if (r.type === 'ron') return isSeat(n)(r.loser) && Array.isArray(r.wins) && r.wins.length > 0 && r.wins.every((w) => w && isSeat(n)(w.winner) && w.winner !== r.loser && handOk(w));
+    if (r.type === 'tsumo') return isSeat(n)(r.winner) && handOk(r);
+    if (r.type === 'draw') return r.tenpai == null || (Array.isArray(r.tenpai) && r.tenpai.every(isSeat(n)));
+    if (r.type === 'adjust') return nums(r.deltas, n);
+    return false;
+  };
+  const resultOk = (x, n) => x && nums(x.rank, n) && nums(x.pts, n) && nums(x.final, n);
+  const gameOk = (g) => {
+    const n = g?.mode;
+    return (n === 3 || n === 4) && typeof g.id === 'string' && !Number.isNaN(new Date(g.date).getTime())
+      && ruleOk(g.rule, n) && Array.isArray(g.playerIds) && g.playerIds.length === n
+      && Array.isArray(g.rounds) && g.rounds.every((r) => roundOk(r, n))
+      && (!g.finished || resultOk(g.result, n));
+  };
+  return Boolean(d && d.version === 1 && d.rules && ruleOk(d.rules[3], 3) && ruleOk(d.rules[4], 4)
+    && Array.isArray(d.players) && d.players.every((p) => p && typeof p.id === 'string' && typeof p.name === 'string')
+    && Array.isArray(d.games) && d.games.every(gameOk));
+}
 function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(db));
@@ -131,7 +158,7 @@ function renderTable(g) {
   </div>
   <div class="acts">
     <button class="btn" data-act="open" data-v="adjust">点数を直す</button>
-    <button class="btn" data-act="undo" ${g.rounds.length ? '' : 'disabled'}>1つ戻す</button>
+    ${g.rounds.length ? cbtn('undo', '1つ戻す') : '<button class="btn" disabled>1つ戻す</button>'}
   </div>
   <section class="card"><h2>この対局の記録</h2>${logHtml(g, st)}</section>
   <div class="acts">
@@ -503,7 +530,7 @@ document.addEventListener('change', (ev) => {
     file.text().then((text) => {
       try {
         const data = JSON.parse(text);
-        if (data?.version !== 1 || !Array.isArray(data.players) || !Array.isArray(data.games) || !data.rules) throw new Error();
+        if (!validDb(data)) throw new Error();
         ui.pending = data; ui.msg = '';
       } catch { ui.pending = null; ui.msg = 'このアプリで書き出したファイルではないようです'; }
       render();

@@ -12,6 +12,11 @@
 - `tests/score.test.mjs` … `node --test tests/score.test.mjs`（フォルダ指定 `tests/` は Node 24 で動かない）。
 - `.claude/launch.json` … 確認用サーバー（quiet-serve、port 8765）。ES モジュールのため `file://` では動かない。
 
+## 公開
+
+- GitHub Pages。リポジトリ `qorigame256/mahjong-kiroku`（公開）。main への push で `.github/workflows/pages.yml` が `app/` だけを公開する。
+- リポジトリ全体が公開される。秘密・個人情報・絶対パス（ユーザー名を含む）をどのファイルにも書かない。
+
 ## 注意
 
 - 保存先は localStorage のキー `mahjong-kiroku-v1`、形は `{version:1, players, games, rules}`。形を変えるときは `version` を上げ、`load()` に旧版からの変換を足す（利用者の端末に旧データが残るため）。

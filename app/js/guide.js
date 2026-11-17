@@ -271,7 +271,7 @@ const BODY = `<div class="g-root">
       <div class="g-rail"><div class="g-dot"><span>STEP</span><b>5</b></div><div class="g-line"></div></div>
       <div class="g-body">
         <p class="g-q">孤立牌がなく、かたまりが6つ以上ある？</p>
-        <p class="g-a">弱いターツを1つ崩す。崩す順は <b>ペンチャン → カンチャン → 3つ目の対子</b>。崩すときは 1・9 に近いほうの牌から切る。メンツ・両面・対子2つまでは崩さない。</p>
+        <p class="g-a">弱いターツを1つ崩す。崩す順は <b>ペンチャン → カンチャン → 3つ目の対子 → 両面</b>。崩すときは 1・9 に近いほうの牌から切る。メンツは崩さない。</p>
         <div class="g-ex">
           <div class="g-hand" data-h="22m/対子 89!m/ペンチャン 35p/カンチャン 345s/メンツ 78s/両面 666z/メンツ"></div>
           <p class="g-note">かたまりが6つ。いちばん弱いペンチャン 8・9萬を崩し、端の9萬から切ります。残った8萬は次の番にSTEP3で切ります。</p>
@@ -283,7 +283,7 @@ const BODY = `<div class="g-root">
       <div class="g-rail"><div class="g-dot"><span>STEP</span><b>6</b></div><div class="g-line"></div></div>
       <div class="g-body">
         <p class="g-q">どれにも当てはまらない？</p>
-        <p class="g-a">テンパイの一歩手前です。6章のやり方で「切ったらテンパイになる牌」を探して切る。2つ見つかったら、両面が残るほうを切る。</p>
+        <p class="g-a">6章のやり方で「切ったらテンパイになる牌」を探して切る。2つ見つかったら、両面が残るほうを切る。見つからなければ、かたまりに入らずに余った牌（1・3・5萬なら、3・5萬をカンチャンと数えて余る1萬）を切る。余りが2枚以上あれば 1・9 → 2・8 → 3〜7 の順。</p>
         <div class="g-ex">
           <div class="g-hand" data-h="234m/メンツ 789m/メンツ 235!p/くっついた形 345s/メンツ 77s/雀頭"></div>
           <p class="g-note">5筒を切ると 2・3筒の両面が残ってテンパイ（待ち 1筒・4筒）。2筒を切っても 3・5筒のカンチャンでテンパイですが、待ちが少ないので5筒を切ります。</p>
@@ -292,10 +292,10 @@ const BODY = `<div class="g-root">
     </div>
 
     <div class="g-step">
-      <div class="g-rail"><div class="g-dot g-end">切った<br>あと</div></div>
+      <div class="g-rail"><div class="g-dot g-end">切る<br>前に</div></div>
       <div class="g-body">
-        <p class="g-q">残りの13枚がテンパイしている？</p>
-        <p class="g-a">していたら、その場で<b class="g-say">「リーチ」</b>（7章）。していなければ次の自分の番を待つ。</p>
+        <p class="g-q">その牌を切ると、残りの13枚がテンパイ？</p>
+        <p class="g-a">テンパイなら、捨てる前に<b class="g-say">「リーチ」</b>と言い、その牌を横向きに捨てる（7章）。テンパイでなければ、ふつうに捨てて次の自分の番を待つ。</p>
       </div>
     </div>
   </div>
@@ -405,7 +405,7 @@ const BODY = `<div class="g-root">
     <div class="g-turn g-ron">
       <div class="g-top"><span class="g-jun">ロン</span></div>
       <p class="g-res">ほかの人が4筒を捨てた。待ちの牌なので<b class="g-say">「ロン」</b>。</p>
-      <div class="g-hand" data-h="234m/メンツ 789m/メンツ 234*p/メンツ 678p/メンツ 55s/雀頭"></div>
+      <div class="g-hand" data-h="234m/メンツ 789m/メンツ 234+p/メンツ 678p/メンツ 55s/雀頭"></div>
     </div>
   </div>
 </section>
@@ -510,11 +510,11 @@ const BODY = `<div class="g-root">
     <div class="g-dn">↓ ない</div>
     <div class="g-s"><span class="g-q">孤立した 3〜7 がある？</span><span class="g-a">それを切る</span></div>
     <div class="g-dn">↓ ない</div>
-    <div class="g-s"><span class="g-q">かたまりが6つ以上？<small>ペンチャン → カンチャン → 3つ目の対子 の順に崩す。端の牌から</small></span><span class="g-a">弱いターツを崩す</span></div>
+    <div class="g-s"><span class="g-q">かたまりが6つ以上？<small>ペンチャン → カンチャン → 3つ目の対子 → 両面 の順に崩す。端の牌から</small></span><span class="g-a">弱いターツを崩す</span></div>
     <div class="g-dn">↓ いいえ</div>
-    <div class="g-s"><span class="g-q">切ったらテンパイになる牌<small>2つあれば両面が残るほう</small></span><span class="g-a">それを切る</span></div>
-    <div class="g-dn">↓ 切ったあと</div>
-    <div class="g-s"><span class="g-q">13枚がテンパイしている？<small>メンツ3つを隠して、残り4枚が「ターツ＋対子」か「対子＋対子」。メンツ4つなら残り1枚</small></span><span class="g-a g-r">「リーチ」</span></div>
+    <div class="g-s"><span class="g-q">切ったらテンパイになる牌<small>2つあれば両面が残るほう。なければ、かたまりに入らない余りの牌</small></span><span class="g-a">それを切る</span></div>
+    <div class="g-dn">↓ 切る前に</div>
+    <div class="g-s"><span class="g-q">切ったあとの13枚がテンパイ？<small>メンツ3つを隠して、残り4枚が「ターツ＋対子」か「対子＋対子」。メンツ4つなら残り1枚。宣言してから横向きに切る</small></span><span class="g-a g-r">「リーチ」</span></div>
   </div>
   <footer>リーチのあとは、待ちの牌が来たら「ツモ」、ほかの人が捨てたら「ロン」。それ以外はツモった牌をそのまま捨てる。</footer>
 </section>

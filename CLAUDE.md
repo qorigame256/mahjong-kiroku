@@ -9,6 +9,7 @@
   - `app/js/score.js` … 点数計算・局の進行・精算。画面に依存しない純粋な関数だけを置く（テストが直接読む）。
   - `app/js/app.js` … 画面と保存。状態を変えたら `render()` で `#main` を作り直す方式。
   - `app/js/fu.js` … 符の計算と練習問題の出題（純粋な関数。テストが直接読む）。`app/js/fuview.js` … 符計算タブと和了入力の中の早見表の HTML。
+  - `app/js/guide.js`・`app/guide.css` … 手組タブ（鳴かずにリーチまでの切り順の資料）。中身は固定の HTML で、牌は SVG で描く。印の書き方は guide.js の先頭。クラス名は `g-` 付き（style.css の `.card`・`.hand` などとぶつかるため）。
   - `app/style.css`
 - `tests/score.test.mjs`・`tests/fu.test.mjs` … `node --test tests/score.test.mjs tests/fu.test.mjs`（フォルダ指定 `tests/` は Node 24 で動かない）。
 - `.claude/launch.json` … 確認用サーバー（quiet-serve、port 8765）。ES モジュールのため `file://` では動かない。

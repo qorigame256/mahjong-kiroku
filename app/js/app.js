@@ -1,6 +1,7 @@
 import { WINDS, DEFAULT_RULES, HAN_OPTIONS, FU_OPTIONS, replay, settle, kyokuName } from './score.js';
 import { calcFu, makeQuestion } from './fu.js';
 import { sheetHtml, quizHtml, fuTemplate, partsSheet } from './fuview.js';
+import { guideHtml } from './guide.js';
 
 const KEY = 'mahjong-kiroku-v1';
 const $ = (s) => document.querySelector(s);
@@ -388,9 +389,9 @@ function renderFu() {
 // ---------- 描画 ----------
 function render() {
   const a = active();
-  const views = { game: () => (a ? renderTable(a) : renderNew()), history: renderHistory, stats: renderStats, fu: renderFu, settings: renderSettings };
+  const views = { game: () => (a ? renderTable(a) : renderNew()), history: renderHistory, stats: renderStats, fu: renderFu, guide: guideHtml, settings: renderSettings };
   $('#main').innerHTML = (ui.saveError ? '<p class="err">保存に失敗しました。ブラウザの空き容量や「プライベート」モードを確かめてください</p>' : '') + views[ui.tab]();
-  $('#tabs').innerHTML = [['game', '対局'], ['history', '履歴'], ['stats', '戦績'], ['fu', '符計算'], ['settings', '設定']]
+  $('#tabs').innerHTML = [['game', '対局'], ['history', '履歴'], ['stats', '戦績'], ['fu', '符計算'], ['guide', '手組'], ['settings', '設定']]
     .map(([k, l]) => `<button class="${ui.tab === k ? 'on' : ''}" data-act="tab" data-v="${k}">${l}</button>`).join('');
   if (ui.f) renderDlg();
 }
